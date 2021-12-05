@@ -1,28 +1,31 @@
 var fs = require('fs')
-function showData(info){
-  console.log(info)
-  // console.log(info.length)
-}
+
+
+
 //open file as filename.csv
 getData()
-
 function getData(){
-  fs.readFile('./example.csv', function(err, data){
+  console.log('Open the File')
+  fs.readFile('./mediumTest.csv', function(err, data){
     if (err) console.log(err)
     // callback(data)
     const sData = data.toString()
     toArray(sData)
   })
 }
+
 //convert file to array
 function toArray(str){
+  console.log('Reading data')
   const rows = str.split('\r\n')
   const fieldsNames = rows[0].split(',')
   const items = rows.slice(1)
   parseArray(fieldsNames, items)
 }
+
 //parse array as formated string
 function parseArray(fieldsName, items){
+  console.log('Parsing data')
   let count = 1
   let lastRow
   let pString = ""
@@ -37,7 +40,6 @@ function parseArray(fieldsName, items){
     }else{
       if(j != 0 )
         pString += "quantity: " + count + "\n\n"
-      // pString += "=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=\n"
       for(i = 0; i < fieldsName.length; i++){
         if (tempArray[i] == null)
           throw new Exception("Required field not found!");
@@ -49,8 +51,15 @@ function parseArray(fieldsName, items){
     }
   }
   pString += "quantity: " + count + "\n\n"
-  // pString += "=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=\n"
 
-  showData(pString)
+  saveData(pString)
 }
+
 //write file to parsed.txt
+function saveData(str){
+  console.log('Saving data')
+  fs.writeFile('Parsed_File.txt', str, function (err) {
+    if (err) throw err;
+    console.log('Done!');
+  });
+}
