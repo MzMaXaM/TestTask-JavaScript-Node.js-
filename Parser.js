@@ -1,65 +1,57 @@
 var fs = require('fs')
+var readline = require('readline')
 
+let fileName = 'miniTest.tsv'
+let parsedFileName = 'Parsed_File.txt'
 
+let fileType = fileName.split('.')[1].toLowerCase()
+let spacer = fileType=='tsv'?'"	"':'","'
 
-//open file as filename.csv
 getData()
 function getData(){
-  console.log('Open the File')
-  fs.readFile('./mediumTest.csv', function(err, data){
-    if (err) console.log(err)
-    // callback(data)
-    const sData = data.toString()
-    toArray(sData)
+  let lineCount = 0
+  let fieldName = []
+  let tempArray = []
+  let lastLine
+  let tempStr = ''
+  let quantityCount = 1
+  if (parsedFileName)
+    fs.unlinkSync(parsedFileName)
+  const writeFile = fs.createWriteStream(parsedFileName,
+    {flags: "a", encoding: "UTF-8"})
+  const rl = readline.createInterface({
+    input: fs.createReadStream(fileName),
+    output:  process.stdout,
+    terminal: false
   })
-}
-
-//convert file to array
-function toArray(str){
-  console.log('Reading data')
-  const rows = str.split('\r\n')
-  const fieldsNames = rows[0].split(',')
-  const items = rows.slice(1)
-  parseArray(fieldsNames, items)
-}
-
-//parse array as formated string
-function parseArray(fieldsName, items){
-  console.log('Parsing data')
-  let count = 1
-  let lastRow
-  let pString = ""
-  //loop through array to parse it
-  //the fact that the DB is nicely ordered is very important
-  //count can be reseted after every row if it's different from the last 
-  for (j = 0; j < items.length; j++){
-    let  tempArray = items[j].split(',')
-    if (tempArray == lastRow){
-      count++;
-      continue;
+  rl.on('line', (line) => {
+    if (lineCount == 0){
+     fieldName = line.toString()
+     fieldName = fieldName.slice(1, fieldName.length-1).split(spacer)
     }else{
-      if(j != 0 )
-        pString += "quantity: " + count + "\n\n"
-      for(i = 0; i < fieldsName.length; i++){
-        if (tempArray[i] == null)
-          throw new Exception("Required field not found!");
-        else 
-          pString += fieldsName[i] +": "+ tempArray[i]+"\n"
+      tempStr = ''
+      tempArray = line.toString()
+      tempArray = tempArray.slice(1, tempArray.length-1).split(spacer)
+
+      if (line == lastLine) quantityCount ++
+      else{
+        if(lineCount > 1)
+          tempStr += "quantity: " + quantityCount + "\n\n"
+        for (i = 0; i < fieldName.length; i++){
+          if (tempArray[i] == null)
+            throw new Exception("Required field not found!");
+          else 
+            tempStr += fieldName[i] +": "+ tempArray[i]+"\n"
+        }
+        quantityCount = 1
+        lastLine = line
       }
-      count = 1;
-      lastRow = items[j];
     }
-  }
-  pString += "quantity: " + count + "\n\n"
-
-  saveData(pString)
-}
-
-//write file to parsed.txt
-function saveData(str){
-  console.log('Saving data')
-  fs.writeFile('Parsed_File.txt', str, function (err) {
-    if (err) throw err;
-    console.log('Done!');
-  });
+    writeFile.write(tempStr)
+    lineCount++
+  })
+  rl.on('close',()=>{
+    tempStr = "quantity: " + quantityCount
+    writeFile.write(tempStr)
+  })
 }
