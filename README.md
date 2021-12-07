@@ -22,10 +22,7 @@ quantity: 3<br>
 =/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/=<br>
 
 ## How to...
-To run the small pString(1,000 lines) add argument: -sTest<br>
-To run the medium pString(10,000 lines) add argument: -mTest<br>
-To run the big pString(153,040 lines) add argument: -bTest<br>
-To run the error pString(6 lines, missing field) add argument: -eTest<br>
-To run it on your own file add argument: -myTest and  the full name of the file<br>
-For example: "node Parser -myTest example.csv"<br>
-Make sure that your file is in the same folder.
+Run the Parser with argument: your_file_name.csv<br>
+Optionally* you can add a name for output file<br>
+For example: "node Parser example.csv exampleOutput.txt"<br>
+Make sure that your file is in the same folder with the Parser.
